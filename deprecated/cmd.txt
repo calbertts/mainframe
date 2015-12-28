@@ -1,0 +1,5 @@
+npm install -g jspm-server
+
+jspm bundle react + material-ui + ace + babel + babel-core + bpmn-js + bpmn-moddle + diagram-js + reflux + radium + css + json + jquery + react-router + react-tap-event-plugin + core-js + diagram-js-direct-editing + fetch + fs + ids + jsx + path + systemjs-json + text + main.js   dependency-bundle.js --minify --inject
+
+"bpmn-js": "/components/workflowDesigner/BPMNDesigner/bpmn-js",
