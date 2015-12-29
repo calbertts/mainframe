@@ -25,7 +25,22 @@ export default class BPMNDesigner extends React.Component {
 
   componentDidMount() {
     this.createDiagram();
+    this._createInputElement();
 
+    this.bpmnModeler.on('commandStack.changed', () => {
+      console.log('commandStack.changed');
+
+      this.saveSVG((err, svg) => {
+        this.setEncoded($(this.refs.downloadSVGDiagram), 'diagram.svg', err ? null : svg);
+      });
+
+      this.saveDiagram((err, xml) => {
+        this.setEncoded($(this.refs.downloadBPMNDiagram), 'diagram.bpmn', err ? null : xml);
+      });
+    });
+  }
+
+  _createInputElement() {
     this.fileInput = $('<input type="file" />').appendTo('#bpmnDesignerContainer').css({
       width: 1,
       height: 1,
@@ -92,12 +107,12 @@ export default class BPMNDesigner extends React.Component {
                 </button>
               </li>
               <li key="item3" style={[BPMNDesignerStyles.ioControl, BPMNDesignerStyles.ioMiddleControl]}>
-                <a key="item_button3" style={[BPMNDesignerStyles.ioButton]} target="_blank" href="#" title="download BPMN diagram" jswidget="downloadBPMN" data-track="diagram:download-bpmn">
+                <a ref="downloadBPMNDiagram" key="item_button3" style={[BPMNDesignerStyles.ioButton]} target="_blank" href="#" title="download BPMN diagram" jswidget="downloadBPMN" data-track="diagram:download-bpmn">
                   <span className="icon-download"></span>
                 </a>
               </li>
               <li key="item4" style={[BPMNDesignerStyles.ioControl, BPMNDesignerStyles.ioBottomControl]}>
-                <a key="item_button4" style={[BPMNDesignerStyles.ioButton]} target="_blank" href="#" title="download as SVG image" jswidget="downloadSVG" data-track="diagram:download-svg">
+                <a ref="downloadSVGDiagram" key="item_button4" style={[BPMNDesignerStyles.ioButton]} target="_blank" href="#" title="download as SVG image" jswidget="downloadSVG" data-track="diagram:download-svg">
                   <span className="icon-picture"></span>
                 </a>
               </li>
@@ -129,7 +144,7 @@ export default class BPMNDesigner extends React.Component {
     var xml = '<?xml version="1.0" encoding="UTF-8"?><bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Definitions_1" targetNamespace="http://bpmn.io/schema/bpmn"><bpmn:process id="Process_1w5pc8q"><bpmn:startEvent id="StartEvent_139s6i2"><bpmn:outgoing>SequenceFlow_0e3r5t7</bpmn:outgoing></bpmn:startEvent><bpmn:task id="Task_16smhr6" name="Script"><bpmn:incoming>SequenceFlow_0e3r5t7</bpmn:incoming><bpmn:outgoing>SequenceFlow_0duz9tz</bpmn:outgoing></bpmn:task><bpmn:sequenceFlow id="SequenceFlow_0e3r5t7" sourceRef="StartEvent_139s6i2" targetRef="Task_16smhr6" /><bpmn:endEvent id="EndEvent_0k7xzsl"><bpmn:incoming>SequenceFlow_0duz9tz</bpmn:incoming></bpmn:endEvent><bpmn:sequenceFlow id="SequenceFlow_0duz9tz" sourceRef="Task_16smhr6" targetRef="EndEvent_0k7xzsl" /></bpmn:process><bpmndi:BPMNDiagram id="BPMNDiagram_1"><bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Process_1w5pc8q"><bpmndi:BPMNShape id="StartEvent_139s6i2_di" bpmnElement="StartEvent_139s6i2"><dc:Bounds x="450" y="132" width="36" height="36" /><bpmndi:BPMNLabel><dc:Bounds x="423" y="168" width="90" height="20" /></bpmndi:BPMNLabel></bpmndi:BPMNShape><bpmndi:BPMNShape id="Task_16smhr6_di" bpmnElement="Task_16smhr6"><dc:Bounds x="602" y="110" width="100" height="80" /></bpmndi:BPMNShape><bpmndi:BPMNEdge id="SequenceFlow_0e3r5t7_di" bpmnElement="SequenceFlow_0e3r5t7"><di:waypoint xsi:type="dc:Point" x="486" y="150" /><di:waypoint xsi:type="dc:Point" x="602" y="150" /><bpmndi:BPMNLabel><dc:Bounds x="499" y="140" width="90" height="20" /></bpmndi:BPMNLabel></bpmndi:BPMNEdge><bpmndi:BPMNShape id="EndEvent_0k7xzsl_di" bpmnElement="EndEvent_0k7xzsl"><dc:Bounds x="784" y="132" width="36" height="36" /><bpmndi:BPMNLabel><dc:Bounds x="757" y="168" width="90" height="20" /></bpmndi:BPMNLabel></bpmndi:BPMNShape><bpmndi:BPMNEdge id="SequenceFlow_0duz9tz_di" bpmnElement="SequenceFlow_0duz9tz"><di:waypoint xsi:type="dc:Point" x="702" y="150" /><di:waypoint xsi:type="dc:Point" x="784" y="150" /><bpmndi:BPMNLabel><dc:Bounds x="698" y="140" width="90" height="20" /></bpmndi:BPMNLabel></bpmndi:BPMNEdge></bpmndi:BPMNPlane></bpmndi:BPMNDiagram></bpmn:definitions>';
     this.bpmnModeler.importXML(xml, function(err) {
       if (err)
-        console.log(err)
+        console.log(err);
     });
   }
 
@@ -184,6 +199,8 @@ export default class BPMNDesigner extends React.Component {
 
   openFile(file, callback) {
 
+    this._createInputElement();
+
     // check file api availability
     if (!window.FileReader) {
       return window.alert(
@@ -212,7 +229,7 @@ export default class BPMNDesigner extends React.Component {
 
   openDiagram(xml) {
 
-    this.bpmnModeler.importXML(xml, function(err, warnings) {
+    this.bpmnModeler.importXML(xml, (err, warnings) => {
 
       if (err) {
         setError(err);
@@ -222,7 +239,7 @@ export default class BPMNDesigner extends React.Component {
         // async scale to fit-viewport (prevents flickering)
         setTimeout(() => {
           this.bpmnModeler.get('canvas').zoom('fit-viewport');
-          setStatus('shown');
+          //setStatus('shown');
         }, 0);
 
         //track('diagram', 'open', 'success');
@@ -243,5 +260,28 @@ export default class BPMNDesigner extends React.Component {
     });
 
     this.props.onSelectedShapes(newSelection);
+  }
+
+  saveDiagram(done) {
+    this.bpmnModeler.saveXML({ format: true }, function(err, xml) {
+      done(err, xml);
+    });
+  }
+
+  setEncoded(link, name, data) {
+    var encodedData = encodeURIComponent(data);
+
+    if (data) {
+      link.attr({
+        'href': 'data:application/bpmn20-xml;charset=UTF-8,' + encodedData,
+        'download': name
+      }).removeClass('inactive');
+    } else {
+      link.addClass('inactive');
+    }
+  }
+
+  saveSVG(done) {
+    this.bpmnModeler.saveSVG(done);
   }
 }
