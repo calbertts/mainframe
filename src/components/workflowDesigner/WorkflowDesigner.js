@@ -27,7 +27,7 @@ export default class WorkflowDesigner extends React.Component {
   }
 
   _onSelectedShapes(shapes) {
-    console.log(shapes);
+    //console.log(shapes);
 
     var open = shapes.length > 0;
 

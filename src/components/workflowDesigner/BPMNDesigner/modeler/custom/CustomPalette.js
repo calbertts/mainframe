@@ -107,7 +107,8 @@ PaletteProvider.prototype.getPaletteEntries = function(element) {
         ),
         'create.task': createAction(
             'bpmn:Task', 'activity', 'bpmn-icon-task'
-        ),
+        )
+        /*,
         'create.call-activity': createAction(
           'bpmn:CallActivity', 'activity', 'bpmn-icon-call-activity', 'Call Activity', {
             moddleAttrs: {
@@ -115,7 +116,7 @@ PaletteProvider.prototype.getPaletteEntries = function(element) {
               'ssi:droppable': 'true'
             }
           }
-        ),
+        ),*/
 
 
       /*
@@ -124,41 +125,6 @@ PaletteProvider.prototype.getPaletteEntries = function(element) {
        'ssi:droppable': 'true'
        }
        */
-
-        'download-xml': {
-          group: 'tools',
-          className: 'bpmn-icon-lasso-tool',
-          title: 'Activate the lasso tool',
-          action: {
-            click: function(event) {
-              function saveDiagram(done) {
-
-                window.bpmnModeler.saveXML({ format: true }, function(err, xml) {
-                  done(err, xml);
-                });
-              }
-
-              //lassoTool.activateSelection(event);
-              function setEncoded(link, name, data) {
-                var encodedData = encodeURIComponent(data);
-
-                if (data) {
-                  link.addClass('active').attr({
-                    'href': 'data:application/bpmn20-xml;charset=UTF-8,' + encodedData,
-                    'download': name
-                  });
-                } else {
-                  link.removeClass('active');
-                }
-              }
-
-              saveDiagram(function(err, xml) {
-                var downloadLink = $('a[title="Powered by bpmn.io"]');
-                setEncoded(downloadLink, 'diagram.bpmn', err ? null : xml);
-              });
-            }
-          }
-        }
     });
 
     return actions;

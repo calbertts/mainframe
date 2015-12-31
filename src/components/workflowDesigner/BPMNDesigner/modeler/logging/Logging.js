@@ -1,6 +1,10 @@
 var onSelectedShapes;
 
 function InteractionLogger(eventBus, modeling) {
+  /*eventBus.on('shape.added', (element) => {
+    console.log('shape.added', element);
+  });*/
+
   eventBus.on('selection.changed', function(event) {
     var newSelection = event.newSelection;
 
@@ -11,7 +15,7 @@ function InteractionLogger(eventBus, modeling) {
       var type = shape.type;
 
       if(type === 'bpmn:CallActivity') {
-        console.log(modeling);
+        //console.log(modeling);
 
         modeling.updateProperties(shape, {
           calledElement: 'myOwnValue'

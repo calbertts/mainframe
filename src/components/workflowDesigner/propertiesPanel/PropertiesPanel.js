@@ -66,7 +66,7 @@ export default class PropertiesPanel extends React.Component {
             this.props.shapes.map((item, index) => {
               itemExpanded = index === this.props.shapes.length - 1;
 
-              console.log(index, this.props.shapes.length - 1);
+              //console.log(index, this.props.shapes.length - 1);
 
               return (
                 <Card key={index} initiallyExpanded={itemExpanded} style={{height: '100%'}}>

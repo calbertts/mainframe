@@ -27,8 +27,8 @@ export default class BPMNDesigner extends React.Component {
     this.createDiagram();
     this._createInputElement();
 
-    this.bpmnModeler.on('commandStack.changed', () => {
-      console.log('commandStack.changed');
+    this.bpmnModeler.on('commandStack.changed', (ag, ag1) => {
+      console.log(ag, ag1);
 
       this.saveSVG((err, svg) => {
         this.setEncoded($(this.refs.downloadSVGDiagram), 'diagram.svg', err ? null : svg);
@@ -37,6 +37,14 @@ export default class BPMNDesigner extends React.Component {
       this.saveDiagram((err, xml) => {
         this.setEncoded($(this.refs.downloadBPMNDiagram), 'diagram.bpmn', err ? null : xml);
       });
+    });
+
+    this.bpmnModeler.on('shape.added', (event) => {
+      var element = event.element;
+      var canvas = this.bpmnModeler.get('canvas');
+
+      if(element.type === 'bpmn:Task')
+        canvas.addMarker(element.id, 'highlight');
     });
   }
 
@@ -142,9 +150,38 @@ export default class BPMNDesigner extends React.Component {
 
   loadNewDiagram() {
     var xml = '<?xml version="1.0" encoding="UTF-8"?><bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Definitions_1" targetNamespace="http://bpmn.io/schema/bpmn"><bpmn:process id="Process_1w5pc8q"><bpmn:startEvent id="StartEvent_139s6i2"><bpmn:outgoing>SequenceFlow_0e3r5t7</bpmn:outgoing></bpmn:startEvent><bpmn:task id="Task_16smhr6" name="Script"><bpmn:incoming>SequenceFlow_0e3r5t7</bpmn:incoming><bpmn:outgoing>SequenceFlow_0duz9tz</bpmn:outgoing></bpmn:task><bpmn:sequenceFlow id="SequenceFlow_0e3r5t7" sourceRef="StartEvent_139s6i2" targetRef="Task_16smhr6" /><bpmn:endEvent id="EndEvent_0k7xzsl"><bpmn:incoming>SequenceFlow_0duz9tz</bpmn:incoming></bpmn:endEvent><bpmn:sequenceFlow id="SequenceFlow_0duz9tz" sourceRef="Task_16smhr6" targetRef="EndEvent_0k7xzsl" /></bpmn:process><bpmndi:BPMNDiagram id="BPMNDiagram_1"><bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Process_1w5pc8q"><bpmndi:BPMNShape id="StartEvent_139s6i2_di" bpmnElement="StartEvent_139s6i2"><dc:Bounds x="450" y="132" width="36" height="36" /><bpmndi:BPMNLabel><dc:Bounds x="423" y="168" width="90" height="20" /></bpmndi:BPMNLabel></bpmndi:BPMNShape><bpmndi:BPMNShape id="Task_16smhr6_di" bpmnElement="Task_16smhr6"><dc:Bounds x="602" y="110" width="100" height="80" /></bpmndi:BPMNShape><bpmndi:BPMNEdge id="SequenceFlow_0e3r5t7_di" bpmnElement="SequenceFlow_0e3r5t7"><di:waypoint xsi:type="dc:Point" x="486" y="150" /><di:waypoint xsi:type="dc:Point" x="602" y="150" /><bpmndi:BPMNLabel><dc:Bounds x="499" y="140" width="90" height="20" /></bpmndi:BPMNLabel></bpmndi:BPMNEdge><bpmndi:BPMNShape id="EndEvent_0k7xzsl_di" bpmnElement="EndEvent_0k7xzsl"><dc:Bounds x="784" y="132" width="36" height="36" /><bpmndi:BPMNLabel><dc:Bounds x="757" y="168" width="90" height="20" /></bpmndi:BPMNLabel></bpmndi:BPMNShape><bpmndi:BPMNEdge id="SequenceFlow_0duz9tz_di" bpmnElement="SequenceFlow_0duz9tz"><di:waypoint xsi:type="dc:Point" x="702" y="150" /><di:waypoint xsi:type="dc:Point" x="784" y="150" /><bpmndi:BPMNLabel><dc:Bounds x="698" y="140" width="90" height="20" /></bpmndi:BPMNLabel></bpmndi:BPMNEdge></bpmndi:BPMNPlane></bpmndi:BPMNDiagram></bpmn:definitions>';
-    this.bpmnModeler.importXML(xml, function(err) {
+    return this.bpmnModeler.importXML(xml, (err) => {
       if (err)
         console.log(err);
+
+      var canvas = this.bpmnModeler.get('canvas');
+      window.canvas = canvas;
+
+      canvas.getAbsoluteBBox = function(element) {
+        var vbox = this.viewbox();
+        var bbox;
+        if (element.waypoints) {
+          var gfx = this.getGraphics(element);
+          var transformBBox = gfx.getBBox(true);
+          bbox = gfx.getBBox();
+          bbox.x -= transformBBox.x;
+          bbox.y -= transformBBox.y;
+          bbox.width += 2 * transformBBox.x;
+          bbox.height += 2 * transformBBox.y;
+        } else {
+          bbox = element;
+        }
+        var x = bbox.x * vbox.scale - vbox.x * vbox.scale + 8;
+        var y = bbox.y * vbox.scale - vbox.y * vbox.scale + 8;
+        var width = bbox.width * vbox.scale - 16;
+        var height = bbox.height * vbox.scale - 16;
+        return {
+          x: x,
+          y: y,
+          width: width,
+          height: height
+        };
+      };
     });
   }
 
