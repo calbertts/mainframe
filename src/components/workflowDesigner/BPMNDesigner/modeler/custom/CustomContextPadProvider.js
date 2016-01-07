@@ -20,6 +20,8 @@ function CustomContextPadProvider(contextPad, modeling, elementFactory, connect,
   this._canvas = canvas;
 
   this.getContextPadEntries = function(element) {
+    console.log("OK");
+
     var contextPad = this._contextPad,
       modeling = this._modeling,
       elementFactory = this._elementFactory,

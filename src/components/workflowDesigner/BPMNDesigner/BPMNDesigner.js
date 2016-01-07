@@ -28,7 +28,7 @@ export default class BPMNDesigner extends React.Component {
     this._createInputElement();
 
     this.bpmnModeler.on('commandStack.changed', (ag, ag1) => {
-      console.log(ag, ag1);
+      //console.log(ag, ag1);
 
       this.saveSVG((err, svg) => {
         this.setEncoded($(this.refs.downloadSVGDiagram), 'diagram.svg', err ? null : svg);
@@ -43,8 +43,16 @@ export default class BPMNDesigner extends React.Component {
       var element = event.element;
       var canvas = this.bpmnModeler.get('canvas');
 
-      if(element.type === 'bpmn:Task')
-        canvas.addMarker(element.id, 'highlight');
+      if(element.type === 'bpmn:ScriptTask')
+        canvas.addMarker(element.id, 'scriptStyle');
+      else if(element.type === 'bpmn:BusinessRuleTask')
+        canvas.addMarker(element.id, 'businessRuleStyle');
+      else if(element.type === 'bpmn:CallActivity')
+        canvas.addMarker(element.id, 'callActivityRuleStyle');
+      else if(element.type === 'bpmn:SendTask')
+        canvas.addMarker(element.id, 'emailRuleStyle');
+      else if(element.type === 'bpmn:ServiceTask')
+        canvas.addMarker(element.id, 'serviceStyle');
     });
   }
 
@@ -140,7 +148,9 @@ export default class BPMNDesigner extends React.Component {
     this.bpmnModeler = new CustomModeler({
       container: canvas,
       keyboard: { bindTo: document },
-      additionalModules: [ extensionModule(this._onSelectedShapes.bind(this)) ]
+      additionalModules: [
+        extensionModule(this._onSelectedShapes.bind(this))
+      ]
     });
 
     this.loadNewDiagram();
@@ -154,35 +164,40 @@ export default class BPMNDesigner extends React.Component {
       if (err)
         console.log(err);
 
-      var canvas = this.bpmnModeler.get('canvas');
-      window.canvas = canvas;
-
-      canvas.getAbsoluteBBox = function(element) {
-        var vbox = this.viewbox();
-        var bbox;
-        if (element.waypoints) {
-          var gfx = this.getGraphics(element);
-          var transformBBox = gfx.getBBox(true);
-          bbox = gfx.getBBox();
-          bbox.x -= transformBBox.x;
-          bbox.y -= transformBBox.y;
-          bbox.width += 2 * transformBBox.x;
-          bbox.height += 2 * transformBBox.y;
-        } else {
-          bbox = element;
-        }
-        var x = bbox.x * vbox.scale - vbox.x * vbox.scale + 8;
-        var y = bbox.y * vbox.scale - vbox.y * vbox.scale + 8;
-        var width = bbox.width * vbox.scale - 16;
-        var height = bbox.height * vbox.scale - 16;
-        return {
-          x: x,
-          y: y,
-          width: width,
-          height: height
-        };
-      };
+      this.setUp();
     });
+  }
+
+  setUp() {
+    var canvas = this.bpmnModeler.get('canvas');
+    window.canvas = canvas;
+
+    canvas.getAbsoluteBBox = function(element) {
+      console.log("OK");
+      var vbox = this.viewbox();
+      var bbox;
+      if (element.waypoints) {
+        var gfx = this.getGraphics(element);
+        var transformBBox = gfx.getBBox(true);
+        bbox = gfx.getBBox();
+        bbox.x -= transformBBox.x;
+        bbox.y -= transformBBox.y;
+        bbox.width += 2 * transformBBox.x;
+        bbox.height += 2 * transformBBox.y;
+      } else {
+        bbox = element;
+      }
+      var x = bbox.x * vbox.scale - vbox.x * vbox.scale + 8;
+      var y = bbox.y * vbox.scale - vbox.y * vbox.scale + 8;
+      var width = bbox.width * vbox.scale - 16;
+      var height = bbox.height * vbox.scale - 16;
+      return {
+        x: x,
+        y: y,
+        width: width,
+        height: height
+      };
+    };
   }
 
   toggleFullScreen(element) {
@@ -272,6 +287,7 @@ export default class BPMNDesigner extends React.Component {
         setError(err);
         //track('diagram', 'open', 'error');
       } else {
+        this.setUp();
 
         // async scale to fit-viewport (prevents flickering)
         setTimeout(() => {

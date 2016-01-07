@@ -1,10 +1,10 @@
 module.exports = {
     __depends__: [require('./customReplace/index')],
-    __init__: [ 'customRenderer', 'paletteProvider', 'customRules', 'customUpdater', 'CustomContextPadProvider' ],
+    __init__: [ 'customRenderer', 'paletteProvider', 'customRules', 'customUpdater', 'customContextPadProvider' ],
     elementFactory: [ 'type', require('./CustomElementFactory') ],
     customRenderer: [ 'type', require('./CustomRenderer') ],
     paletteProvider: [ 'type', require('./CustomPalette') ],
     customRules: [ 'type', require('./CustomRules') ],
     customUpdater: [ 'type', require('./CustomUpdater') ],
-    CustomContextPadProvider: [ 'type', require('./CustomContextPadProvider') ]
+    customContextPadProvider: [ 'type', require('./CustomContextPadProvider') ]
 };

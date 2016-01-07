@@ -2,8 +2,29 @@ html, body, div#container {
     height: 100%
 }
 
-.highlight:not(.djs-connection) .djs-visual > :nth-child(1) {
-    fill: #C3EBC3 !important;
+.scriptStyle:not(.djs-connection) .djs-visual > :nth-child(1) {
+    fill: #E1E1F7 !important;
+    /*stroke: #797040;*/
+}
+
+.businessRuleStyle:not(.djs-connection) .djs-visual > :nth-child(1) {
+    fill: #F3E0ED !important;
+    /*stroke: #764267;*/
+}
+
+.callActivityRuleStyle:not(.djs-connection) .djs-visual > :nth-child(1) {
+    fill: #F3ECC2 !important;
+    /*stroke: #3C3C76;*/
+}
+
+.emailRuleStyle:not(.djs-connection) .djs-visual > :nth-child(1) {
+    fill: #CFEDEF !important;
+    /*stroke: #337479;*/
+}
+
+.serviceStyle:not(.djs-connection) .djs-visual > :nth-child(1) {
+    fill: #F7D9C2 !important;
+    /*stroke: #64432A;*/
 }
 
 .djs-container, .bjs-container {
